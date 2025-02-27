@@ -1,4 +1,5 @@
 from telethon import TelegramClient, events
+from telethon.sessions import StringSession  # StringSession'ı en üste taşı
 import asyncio
 import os
 import json
@@ -6,67 +7,46 @@ import json
 # Debug: Tüm ortam değişkenlerini yazdır
 print("Environment Variables:", os.environ)
 
-# Debug: API_ID'nin değerini kontrol et
-API_ID = os.environ.get('API_ID')
-print("API_ID Value:", API_ID, "Type:", type(API_ID))
+# AYARLAR (TEK BİR TANIMLAMA YAPIN)
+API_ID = int(os.environ.get('API_ID', 27125394))  # Default değer KULLANMAYIN!
+API_HASH = os.environ.get('API_HASH')  # GitHub Secrets'tan alınacak
+SESSION_STRING = os.environ.get('SESSION_STRING')  # GitHub Secrets'tan alınacak
 
-API_ID = int(API_ID)  # Hata bu satırda oluşuyorsa, API_ID boş veya geçersiz
+# Debug kontrolü
+print(f"API_ID: {API_ID} ({type(API_ID)})")
+print(f"API_HASH: {API_HASH} ({type(API_HASH)})")
+print(f"SESSION_STRING: {SESSION_STRING[:15]}...")  # Full string'i loglama güvenlik riski!
 
-# AYARLAR
-API_ID = int(os.environ.get('API_ID', 27125394))
-API_HASH = os.environ.get('API_HASH', 'f83dd11c7c68d4f85951883dd42ffcc5')
-SESSION_STRING = os.environ.get('SESSION_STRING', '1BJWap1sBuw8VfRNcmGbAqyfueNelz4rlbGe4IAfp2DqF3abYW0JueRJBw0iJYa9T3Ia9ta5AzMpZjvpR_woVD3SQFBKxnvUhAzu4gGEqopvtBu2402mGpwIlpyTNiM-VNpiHiJ7bDyidxeiJeDPG3ULQZhaEJN_I1QvAB4rZLQ8Y2pWnqhcZwnB4jQts62-rLGN07iKo4lP4_NIT8Saaxj-xIwhSN65AOwA6Qykr6kQg1s32gA9tJEmwPL-8CzrGJB_3smNVjnCkfaRKZJQUM0pKJJDYg72CFkMIElpC_skqmTfMZZaLOZ7DEFAHGWxAafx0U9v0Al7TFcgFsF8uk_fOOhZQ5Xw=')  # GitHub Actions için session string kullanacağız
-TARGET_CHANNELS = ['firsatlartr', 'FIRSATLAR']  # Kullanıcı adları veya ID'ler
+TARGET_CHANNELS = ['firsatlartr', 'FIRSATLAR']
 KEYWORDS = ["telefon", "pantolon", "cif", "havlu", "termos", "mont"]
-
-# Son işlenen mesajları takip etmek için
 PROCESSED_FILE = "processed_messages.json"
 
-# Telethon istemcisini başlat
-client = None
+# 1. YANLIŞ: API_ID'yi iki kez tanımlamışsınız
+# 2. YANLIŞ: Default değerler kullanıyorsunuz (GitHub Secrets MECBURİ)
+# 3. YANLIŞ: StringSession geç import edilmiş
 
 async def init_client():
-    global client
-    # String session ile başlat (GitHub Actions'da kullanmak için)
     client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
     await client.start()
     return client
 
-def load_processed_messages():
-    if os.path.exists(PROCESSED_FILE):
-        try:
-            with open(PROCESSED_FILE, 'r') as f:
-                return json.load(f)
-        except:
-            return {'message_ids': []}
-    return {'message_ids': []}
-
-def save_processed_messages(data):
-    with open(PROCESSED_FILE, 'w') as f:
-        json.dump(data, f)
+# ... (load_processed_messages ve save_processed_messages aynı kalabilir)
 
 @events.register(events.NewMessage(chats=TARGET_CHANNELS))
 async def handle_new_message(event):
     try:
-        # Daha önce işlenmiş mesajları kontrol et
         processed_data = load_processed_messages()
         if event.message.id in processed_data['message_ids']:
-            print(f"Mesaj zaten işlenmiş: {event.message.id}")
             return
             
-        message_text = event.message.text.lower() if event.message.text else ""
+        message_text = event.message.text.lower()
         if any(keyword in message_text for keyword in KEYWORDS):
-            # Kaynak kanal bilgisini al
             channel = await event.get_chat()
             await client.send_message(
-                "me",  # Kayıtlı mesajlara gönder
+                "me",
                 f"🚨 **{channel.title}**\n\n{event.message.text}"
             )
-            print(f"✅ {channel.title} - Filtrelenmiş mesaj gönderildi")
-            
-            # İşlenmiş mesajları kaydet
             processed_data['message_ids'].append(event.message.id)
-            # Listeyi son 100 mesajla sınırla
             processed_data['message_ids'] = processed_data['message_ids'][-100:]
             save_processed_messages(processed_data)
             
@@ -74,32 +54,24 @@ async def handle_new_message(event):
         print(f"Hata: {e}")
 
 async def main():
-    # Telethon StringSession içe aktarımı
-    global StringSession
-    from telethon.sessions import StringSession
-    
-    # İstemciyi başlat
-    global client
     client = await init_client()
     
-    # Kanalları doğrula
+    # Kanalları kontrol et
     for channel in TARGET_CHANNELS:
         try:
             entity = await client.get_entity(channel)
             print(f"✅ Kanal bağlandı: {entity.title}")
-        except Exception as e:
-            print(f"❌ HATA: {channel} bulunamadı! ({e})")
+        except ValueError:
+            print(f"❌ Kanal bulunamadı: {channel}")
+            await client.disconnect()
+            return  # Kritik hata durumunda çık
 
-    # Event handler'ı ekle
     client.add_event_handler(handle_new_message)
+    print("Bot çalışıyor...")
     
-    print("Bot çalışıyor... Mesajlar dinleniyor.")
-    
-    # GitHub Actions için - belirli bir süre çalıştır ve kapat
-    # (Normalde await client.run_until_disconnected() kullanılır)
-    await asyncio.sleep(600)  # 10 dakika çalış
+    # GitHub Actions için timeout süresini 1 saat yap
+    await asyncio.sleep(3600)
     await client.disconnect()
-    print("Bot planlı şekilde durduruldu.")
 
 if __name__ == '__main__':
     asyncio.run(main())
