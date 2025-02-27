@@ -27,12 +27,12 @@ jobs:
         path: processed_messages.json
         key: ${{ runner.os }}-processed-messages
         
-    - name: Botu çalıştır
-      env:
-        API_ID: ${{ secrets.API_ID }}
-        API_HASH: ${{ secrets.API_HASH }}
-        SESSION_STRING: ${{ secrets.SESSION_STRING }}
-      run: python telethon_bot.py
+      - name: Run Bot
+        env: # 🔑 Secrets'ları buraya ekleyin
+          API_ID: ${{ secrets.API_ID }}
+          API_HASH: ${{ secrets.API_HASH }}
+          SESSION_STRING: ${{ secrets.SESSION_STRING }}
+        run: python telethon_bot.py
         
     - name: İşlenmiş mesajları kaydet
       uses: actions/upload-artifact@v4
