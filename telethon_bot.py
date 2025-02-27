@@ -3,6 +3,15 @@ import asyncio
 import os
 import json
 
+# Debug: Tüm ortam değişkenlerini yazdır
+print("Environment Variables:", os.environ)
+
+# Debug: API_ID'nin değerini kontrol et
+API_ID = os.environ.get('API_ID')
+print("API_ID Value:", API_ID, "Type:", type(API_ID))
+
+API_ID = int(API_ID)  # Hata bu satırda oluşuyorsa, API_ID boş veya geçersiz
+
 # AYARLAR
 API_ID = int(os.environ.get('API_ID', 27125394))
 API_HASH = os.environ.get('API_HASH', 'f83dd11c7c68d4f85951883dd42ffcc5')
