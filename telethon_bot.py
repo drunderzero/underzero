@@ -8,9 +8,9 @@ import json
 print("Environment Variables:", os.environ)
 
 # AYARLAR (TEK BİR TANIMLAMA YAPIN)
-API_ID = int(os.environ.get('API_ID', 27125394))  # Default değer KULLANMAYIN!
-API_HASH = os.environ.get('API_HASH')  # GitHub Secrets'tan alınacak
-SESSION_STRING = os.environ.get('SESSION_STRING')  # GitHub Secrets'tan alınacak
+API_ID = int(os.environ['API_ID'])  # Secrets'da MECBURİ olmalı
+API_HASH = os.environ['API_HASH']
+SESSION_STRING = os.environ['SESSION_STRING']
 
 # Debug kontrolü
 print(f"API_ID: {API_ID} ({type(API_ID)})")
