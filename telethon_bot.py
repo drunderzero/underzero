@@ -6,7 +6,7 @@ import json
 # AYARLAR
 API_ID = int(os.environ.get('API_ID', 27125394))
 API_HASH = os.environ.get('API_HASH', 'f83dd11c7c68d4f85951883dd42ffcc5')
-SESSION_STRING = os.environ.get('SESSION_STRING', '')  # GitHub Actions için session string kullanacağız
+SESSION_STRING = os.environ.get('SESSION_STRING', '1BJWap1sBuw8VfRNcmGbAqyfueNelz4rlbGe4IAfp2DqF3abYW0JueRJBw0iJYa9T3Ia9ta5AzMpZjvpR_woVD3SQFBKxnvUhAzu4gGEqopvtBu2402mGpwIlpyTNiM-VNpiHiJ7bDyidxeiJeDPG3ULQZhaEJN_I1QvAB4rZLQ8Y2pWnqhcZwnB4jQts62-rLGN07iKo4lP4_NIT8Saaxj-xIwhSN65AOwA6Qykr6kQg1s32gA9tJEmwPL-8CzrGJB_3smNVjnCkfaRKZJQUM0pKJJDYg72CFkMIElpC_skqmTfMZZaLOZ7DEFAHGWxAafx0U9v0Al7TFcgFsF8uk_fOOhZQ5Xw=')  # GitHub Actions için session string kullanacağız
 TARGET_CHANNELS = ['firsatlartr', 'FIRSATLAR']  # Kullanıcı adları veya ID'ler
 KEYWORDS = ["telefon", "pantolon", "cif", "havlu", "termos", "mont"]
 
