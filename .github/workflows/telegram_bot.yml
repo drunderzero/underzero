@@ -1,0 +1,41 @@
+name: Telegram Keyword Monitoring Bot
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # Her 30 dakikada bir çalışır
+  workflow_dispatch:  # Manuel tetikleme seçeneği ekler
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Kodu al
+      uses: actions/checkout@v3
+      
+    - name: Python 3.9 kur
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Bağımlılıkları yükle
+      run: pip install -r requirements.txt
+      
+    - name: İşlenmiş mesajları geri yükle
+      uses: actions/cache@v3
+      with:
+        path: processed_messages.json
+        key: ${{ runner.os }}-processed-messages
+        
+    - name: Botu çalıştır
+      env:
+        API_ID: ${{ secrets.API_ID }}
+        API_HASH: ${{ secrets.API_HASH }}
+        SESSION_STRING: ${{ secrets.SESSION_STRING }}
+      run: python telethon_bot.py
+        
+    - name: İşlenmiş mesajları kaydet
+      uses: actions/upload-artifact@v3
+      with:
+        name: bot-sonuclari
+        path: processed_messages.json
