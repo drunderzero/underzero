@@ -1,5 +1,6 @@
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
+from telethon.errors import AuthKeyDuplicatedError
 import asyncio
 import os
 import json
@@ -30,6 +31,16 @@ def load_processed_messages():
 def save_processed_messages(data):
     with open(PROCESSED_FILE, 'w') as f:
         json.dump(data, f)
+
+async def main():
+    try:
+        client = await init_client()
+        # ... diğer kodlar
+    except AuthKeyDuplicatedError:
+        print("HATA: Bu oturum başka bir cihazda kullanılıyor!")
+        await client.disconnect()
+    except Exception as e:
+        print(f"Beklenmeyen hata: {e}")
 
 async def init_client():
     client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
