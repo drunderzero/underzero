@@ -19,7 +19,7 @@ print(f"API_HASH: {API_HASH} ({type(API_HASH)})")
 print(f"SESSION_STRING: {SESSION_STRING[:15]}...")  # Güvenlik nedeniyle tam string loglanmıyor
 
 TARGET_CHANNELS = ['firsatlartr', 'FIRSATLAR']
-KEYWORDS = ["telefon", "pantolon", "cif", "havlu", "termos", "mont"]
+KEYWORDS = ["telefon", "pantolon", "cif", "havlu", "termos", "mont", "moliendo"]
 PROCESSED_FILE = "processed_messages.json"
 
 def load_processed_messages():
